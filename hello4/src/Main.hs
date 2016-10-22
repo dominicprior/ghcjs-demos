@@ -16,7 +16,6 @@ main :: IO ()
 
 --k :: Bool
 --k = on
---instance IsNode Attr
 
 main = run 3708 $ do
     Just doc <- currentDocument
@@ -25,11 +24,9 @@ main = run 3708 $ do
     on doc D.click $ do
         (x, y) <- mouseClientXY
         Just elt <- getElementById doc "hi"
-        setAttribute elt "class" "fooey" 
         setAttribute elt "style" $
             "position:relative; color:red; top:" ++
             show y ++ "px; left:" ++ show x ++ "px;"
-        Just styleAttr <- createAttribute doc "style"
         Just newParagraph <- createElement doc (Just "p")
         text <- createTextNode doc $ "Click " ++ show (x, y)
         appendChild newParagraph text
