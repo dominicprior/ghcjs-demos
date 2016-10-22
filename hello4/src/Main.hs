@@ -11,11 +11,17 @@ import GHCJS.DOM.Node (appendChild)
 import GHCJS.DOM.EventM (on, mouseClientXY)
 import qualified GHCJS.DOM.Document as D (click)
 import qualified GHCJS.DOM.Element as E (click)
+import GHCJS.DOM.WindowTimers (WindowTimers, setInterval)
+--import GHCJS.DOM.Types (WindowTimers)
 
 main :: IO ()
 
 --k :: Bool
 --k = on
+
+--setInterval :: (MonadIO m) => WindowTimers -> JSVal -> Int -> m Int
+--newtype WindowTimers = WindowTimers { unWindowTimers :: JSVal }
+
 
 main = run 3708 $ do
     Just doc <- currentDocument
