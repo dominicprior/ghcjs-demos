@@ -1,29 +1,36 @@
-module Main (
-    main
-) where
+module Main where
 
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Concurrent.MVar (takeMVar, putMVar, newEmptyMVar)
 
 import GHCJS.DOM (run, syncPoint, currentDocument)
-import GHCJS.DOM.Types
-       (HTMLParagraphElement(..), HTMLSpanElement(..), unsafeCastTo)
-import GHCJS.DOM.Document (getBodyUnsafe, createElementUnsafe, createTextNode)
-import GHCJS.DOM.Element (setInnerHTML)
+import GHCJS.DOM.Document (getBody, createElement, createTextNode
+    , getElementById, createAttribute)
+import GHCJS.DOM.Element (setInnerHTML, setAttribute)
 import GHCJS.DOM.Node (appendChild)
 import GHCJS.DOM.EventM (on, mouseClientXY)
 import qualified GHCJS.DOM.Document as D (click)
 import qualified GHCJS.DOM.Element as E (click)
 
-main = do
-  putStrLn "<a href=\"http://localhost:3708/\">http://localhost:3708/</a>"
-  run 3708 $ do
+main :: IO ()
+
+--k :: Bool
+--k = on
+--instance IsNode Attr
+
+main = run 3708 $ do
     Just doc <- currentDocument
-    body <- getBodyUnsafe doc
-    setInnerHTML body (Just "<h1>Kia ora (Hi)</h1>")
+    Just body <- getBody doc
+    setInnerHTML body (Just "<h1 id='hi'>Kia ora (Hi)</h1>")
     on doc D.click $ do
         (x, y) <- mouseClientXY
-        newParagraph <- createElementUnsafe doc (Just "p") >>= unsafeCastTo HTMLParagraphElement
+        Just elt <- getElementById doc "hi"
+        setAttribute elt "class" "fooey" 
+        setAttribute elt "style" $
+            "position:relative; color:red; top:" ++
+            show y ++ "px; left:" ++ show x ++ "px;"
+        Just styleAttr <- createAttribute doc "style"
+        Just newParagraph <- createElement doc (Just "p")
         text <- createTextNode doc $ "Click " ++ show (x, y)
         appendChild newParagraph text
         appendChild body (Just newParagraph)
@@ -31,7 +38,7 @@ main = do
 
     -- Make an exit button
     exitMVar <- liftIO newEmptyMVar
-    exit <- createElementUnsafe doc (Just "span") >>= unsafeCastTo HTMLSpanElement
+    Just exit <- createElement doc (Just "span")
     text <- createTextNode doc "Click here to exit"
     appendChild exit text
     appendChild body (Just exit)
