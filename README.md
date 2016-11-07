@@ -11,3 +11,5 @@ The starting point for my first working example, hello4, was this: https://githu
 To build hello4, I just run "stack build", and, to try it out, I view inside chromium the index.html from the hello.jsexe folder that "stack build" mentions.
 
 The program responds to clicks in the window by drawing the text at that position.
+
+It also now has a forever loop that moves the text back to a given position (because the loop is stateless).
