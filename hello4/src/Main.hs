@@ -1,7 +1,7 @@
 module Main where
 
 import Control.Monad.IO.Class (MonadIO(..))
-import Control.Concurrent.MVar (takeMVar, putMVar, newEmptyMVar)
+import Control.Concurrent.MVar (takeMVar, putMVar, newEmptyMVar, newMVar)
 
 import GHCJS.DOM (run, syncPoint, currentDocument)
 import GHCJS.DOM.Document (getBody, createElement, createTextNode
@@ -27,11 +27,14 @@ main :: IO ()
 
 
 main = run 3708 $ do
+    state <- newMVar (0,0)
     Just doc <- currentDocument
     Just body <- getBody doc
     setInnerHTML body (Just "<h1 id='hi'>Kia ora 4(Hi)</h1>")
     on doc D.click $ do
         (x, y) <- mouseClientXY
+        liftIO $ takeMVar state
+        liftIO $ putMVar state (x,y)
         moveHi doc x y
         Just newParagraph <- createElement doc (Just "p")
         text <- createTextNode doc $ "Click " ++ show (x, y)
@@ -51,8 +54,10 @@ main = run 3708 $ do
     syncPoint
 
     forever $ do
-        threadDelay 2000000
-        moveHi doc 200 200
+        (x,y) <- takeMVar state
+        moveHi doc x y
+        putMVar state (x+1, y+1)
+        threadDelay 50000
             
 
     -- In GHC compiled version the WebSocket connection will end when this
