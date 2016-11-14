@@ -3,6 +3,9 @@
 module Main where
 
 import Control.Lens
+import Data.List
+import Data.Ord
+import Data.Maybe
 
 main :: IO ()
 main = do
@@ -42,26 +45,78 @@ data WhoIsColliding = BlobBlob BlobId BlobId
                     | Side BlobId
                     | CeilingOrFloor BlobId
 
+-- Advances the world forward by the given time, taking into account
+-- all the collisions that might happen in that time.
+
 moveForwardsInTime :: Time -> World -> World
 moveForwardsInTime t world =
   let (Collision dt who) = nextCollision world
       world' = moveBlobs (min t dt) world
   in if t < dt then world'
-     else moveForwardsInTime (t - dt) $ bounce who world'
+     else moveForwardsInTime (t - dt) $ over blobs (bounce who) world'
 
 nextCollision :: World -> Collision
-nextCollision = undefined
+nextCollision world = minimumBy (comparing _collisionTime) $
+  map (sideFn world) ids ++ map (upDownFn world) ids ++
+    catMaybes [blobBlobFn world i j | i <- ids, j <- ids]
+  where ids = [0..length (_blobs world) - 1]
+
+-- Returns the next collision of blob i with a side wall.
+
+sideFn :: World -> BlobId -> Collision
+sideFn world i =
+  let b = _blobs world !! i
+      u = _vecX $ _vel b
+      x = _vecX $ _pos b
+      r = _rad b
+      w = _vecX $ _worldSize world
+      t = if u > 0
+          then (w - r - x) / u
+          else (x - r) / u
+  in Collision t $ Side i
+
+upDownFn :: World -> Int -> Collision
+upDownFn world i =
+  let b = _blobs world !! i
+      v = _vecY $ _vel b
+      y = _vecY $ _pos b
+      r = _rad b
+      g = _gravity world
+      h = _vecY $ _worldSize world
+      k = h - r - y
+      discr = v*v - 2*g*k
+      t = if discr > 0
+          then (v - sqrt discr) / g
+          else let k' = r - y
+                   discr' = v*v - 2*g*k'
+               in (v + sqrt discr') / g
+  in Collision t $ CeilingOrFloor i
+
+blobBlobFn :: World -> Int -> Int -> Maybe Collision
+blobBlobFn world i j =
+  let a = _blobs world !! i
+      b = _blobs world !! j
+      v = _vel b ++- _vel a
+      p = _pos b ++- _pos a
+      r = _rad a + _rad b
+      vv = dot v v
+      pv = dot p v
+      pp = dot p p
+      discr = pv^2 - vv^2 * (pp - r^2)
+  in if discr > 0 && pv < 0 && pp > r^2
+     then let t = (- pv - sqrt discr) / vv
+          in Just $ Collision t $ BlobBlob i j
+     else Nothing
 
 moveBlobs :: Time -> World -> World
 moveBlobs = undefined
 
-bounce :: WhoIsColliding -> World -> World
-bounce = over blobs . bounce'
+-- Updates the blob list to account for the given collision.
 
-bounce' :: WhoIsColliding -> [Blob] -> [Blob]
-bounce' (Side i) bb           = over (element i . vel . vecX) negate bb
-bounce' (CeilingOrFloor i) bb = over (element i . vel . vecY) negate bb
-bounce' (BlobBlob i j) bb =
+bounce :: WhoIsColliding -> [Blob] -> [Blob]
+bounce (Side i) bb           = over (element i . vel . vecX) negate bb
+bounce (CeilingOrFloor i) bb = over (element i . vel . vecY) negate bb
+bounce (BlobBlob i j) bb =
   let b = [bb!!i, bb!!j]
       masses     = map ((^2) . _rad) b
       velocities = map _vel b
@@ -70,7 +125,7 @@ bounce' (BlobBlob i j) bb =
       relVels = map (++- avVel) velocities
       diff = _pos (bb!!j) ++- _pos (bb!!i)
       [v1,v2] = zipWith f velocities relVels
-      f v rel = v ++- along rel diff
+      f v rel = v ++- (along rel diff ++* 2)
   in set (element i . vel) v1 $ set (element j . vel) v2 bb
 
 
