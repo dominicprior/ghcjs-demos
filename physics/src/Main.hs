@@ -61,7 +61,7 @@ nextCollision world = minimumBy (comparing _collisionTime) $
     catMaybes [blobBlobFn world i j | i <- ids, j <- ids]
   where ids = [0..length (_blobs world) - 1]
 
--- Returns the next collision of blob i with a side wall.
+-- The next collision of blob i with a side wall.
 
 sideFn :: World -> BlobId -> Collision
 sideFn world i =
@@ -75,7 +75,9 @@ sideFn world i =
           else (x - r) / u
   in Collision t $ Side i
 
-upDownFn :: World -> Int -> Collision
+-- The next collision of blob i with the ceiling or floor.
+
+upDownFn :: World -> BlobId -> Collision
 upDownFn world i =
   let b = _blobs world !! i
       v = _vecY $ _vel b
@@ -92,7 +94,9 @@ upDownFn world i =
                in (v + sqrt discr') / g
   in Collision t $ CeilingOrFloor i
 
-blobBlobFn :: World -> Int -> Int -> Maybe Collision
+-- The next collision (if any) between blobs i and j.
+
+blobBlobFn :: World -> BlobId -> BlobId -> Maybe Collision
 blobBlobFn world i j =
   let a = _blobs world !! i
       b = _blobs world !! j
@@ -108,8 +112,16 @@ blobBlobFn world i j =
           in Just $ Collision t $ BlobBlob i j
      else Nothing
 
+-- Moves all the blobs forwards in time, assuming no collisions.
+
 moveBlobs :: Time -> World -> World
-moveBlobs = undefined
+moveBlobs t world = over blobs (map $ moveBlob (_gravity world) t) world
+
+moveBlob :: Double -> Time -> Blob -> Blob
+moveBlob g t (Blob (Vec x y) (Vec u v) r c) =
+  Blob (Vec (x + u*t) (y + v*t - g*t*t/2))
+       (Vec u (v - g*t))
+       r c
 
 -- Updates the blob list to account for the given collision.
 
