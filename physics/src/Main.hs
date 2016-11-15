@@ -58,8 +58,9 @@ moveForwardsInTime t world =
 nextCollision :: World -> Collision
 nextCollision world = minimumBy (comparing _collisionTime) $
   map (sideFn world) ids ++ map (upDownFn world) ids ++
-    catMaybes [blobBlobFn world i j | i <- ids, j <- ids]
-  where ids = [0..length (_blobs world) - 1]
+    catMaybes [blobBlobFn world i j | i <- ids, j <- [i+1..n]]
+  where n = length (_blobs world) - 1
+        ids = [0..n]
 
 -- The next collision of blob i with a side wall.
 
