@@ -17,20 +17,16 @@ import GHCJS.DOM.WindowTimers (WindowTimers, setInterval)
 import Control.Concurrent (threadDelay)
 import Control.Monad (forever)
 
-main :: IO ()
-
---k :: Bool
---k = on
-
---setInterval :: (MonadIO m) => WindowTimers -> JSVal -> Int -> m Int
---newtype WindowTimers = WindowTimers { unWindowTimers :: JSVal }
-
 
 main = run 3708 $ do
     state <- newMVar (0,0)
     Just doc <- currentDocument
     Just body <- getBody doc
-    setInnerHTML body (Just "<h1 id='hi'>Kia ora 4(Hi)</h1>")
+    setInnerHTML body $ Just $
+        "<h1 id='hi'>Kia ora 5(Hi)</h1>" ++
+        "<svg width=\"200\" height=\"200\">" ++
+        "<circle cx=\"50\" cy=\"50\" r=\"40\" stroke=\"green\" stroke-width=\"4\" fill=\"yellow\" />" ++
+        "</svg>"
     on doc D.click $ do
         (x, y) <- mouseClientXY
         liftIO $ takeMVar state
@@ -67,7 +63,6 @@ main = run 3708 $ do
     return ()
 
 
---moveHi :: Int -> Int -> IO ()
 moveHi doc x y = do
     Just elt <- getElementById doc "hi"
     setAttribute elt "style" $
