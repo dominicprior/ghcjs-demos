@@ -17,33 +17,32 @@ import GHCJS.DOM.WindowTimers (WindowTimers, setInterval)
 import Control.Concurrent (threadDelay)
 import Control.Monad (forever)
 
-
 main = run 3708 $ do
-    state <- newMVar (0,0)
+    state <- newMVar (100,100)
+    paint state
     Just doc <- currentDocument
-    Just body <- getBody doc
-    setInnerHTML body $ Just $
-        "<h1 id='hi'>Kia ora 5(Hi)</h1>" ++
-        "<svg id='s' width=\"200\" height=\"200\">" ++
-        "<circle cx=\"50\" cy=\"50\" r=\"40\" stroke=\"green\" stroke-width=\"4\" fill=\"yellow\" />" ++
-        "</svg>"
     on doc D.click $ do
         (x, y) <- mouseClientXY
         liftIO $ takeMVar state
         liftIO $ putMVar state (x,y)
-        moveHi doc x y
+        liftIO $ paint state
         return ()
 
     syncPoint
 
     forever $ do
+        paint state
         (x,y) <- takeMVar state
-        moveHi doc x y
         putMVar state (x+1, y+1)
         threadDelay 50000
-            
 
-moveHi doc x y = do
-    Just elt <- getElementById doc "s"
-    setInnerHTML elt $ Just $
-        "<circle cx=\"" ++ show x ++ "\" cy=\"" ++ show y ++ "\" r=\"40\" stroke=\"green\" stroke-width=\"4\" fill=\"pink\" />"
+paint state = do
+    (x,y) <- takeMVar state
+    Just doc <- currentDocument
+    Just body <- getBody doc
+    setInnerHTML body $ Just $
+        "<svg id='s' width=\"800\" height=\"600\">" ++
+        "<circle cx=\"" ++ show x ++ "\" cy=\"" ++ show y ++
+                 "\" r=\"40\" stroke=\"green\" stroke-width=\"4\" fill=\"pink\" />" ++
+        "</svg>"
+    putMVar state (x,y)
