@@ -103,7 +103,9 @@ data WhoIsColliding = BlobBlob BlobId BlobId
 
 
 initialWorld :: World
-initialWorld = World [Blob (Vec 100 100) (Vec 30 30) 20 "pink"] (Vec 801 600) 10
+initialWorld = World [Blob (Vec 100 100) (Vec 120 120) 150 "pink",
+                      Blob (Vec 400 100) (Vec 80 80) 70 "cyan"]
+  (Vec 801 600) 10
 
 tick :: Double
 tick = 0.1   -- in seconds
@@ -137,7 +139,7 @@ sideFn world i =
       w = _vecX $ _worldSize world
       t = if u > 0
           then (w - r - x) / u
-          else (x - r) / u
+          else (r - x) / u
   in Collision t $ Side i
 
 -- The next collision of blob i with the ceiling or floor.
@@ -224,13 +226,16 @@ blobStr h b =
   let p = _pos b
   in
     "<circle " ++ q "cx" (_vecX p) ++ q "cy" (h - _vecY p) ++ q "r" (_rad b) ++
-        q "stroke-width" 0 ++ q "fill" (_col b) ++ "/>\n"
+        q "stroke-width" 0 ++ qq "fill" (_col b) ++ "/>\n"
 
 
 -- An HTML tag: e.g. q "width" 200 would be width="200"
 
 q :: Show a => String -> a -> String
 q attr val = " " ++ attr ++ "=" ++ "\"" ++ show val ++ "\"" ++ " "
+
+qq :: String -> String -> String
+qq attr val = " " ++ attr ++ "=" ++ "\"" ++ val ++ "\"" ++ " "
 
 
 (+++) :: Vec -> Vec -> Vec
