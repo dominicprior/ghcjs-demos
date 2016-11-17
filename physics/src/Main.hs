@@ -15,19 +15,19 @@ data World = World {
     _blobs :: [Blob]
   , _worldSize :: Vec  -- in pixels.
   , _gravity :: Double -- in pixels per second per second.
-}
+} deriving (Show)
 
 data Blob = Blob {
     _pos :: Vec     -- in pixels, from bottom left.
   , _vel :: Vec     -- in pixels per second.
   , _rad :: Double  -- in pixels.
   , _col :: String
-}
+} deriving (Show)
 
 data Vec = Vec {
     _vecX :: Double
   , _vecY :: Double
-}
+} deriving (Show)
 
 makeLenses ''World
 makeLenses ''Blob
@@ -39,11 +39,12 @@ type BlobId = Int
 data Collision = Collision {
     _collisionTime :: Time   -- how far in the future in seconds.
   , _who :: WhoIsColliding
-}
+} deriving (Show)
 
 data WhoIsColliding = BlobBlob BlobId BlobId
                     | Side BlobId
                     | CeilingOrFloor BlobId
+  deriving (Show)
 
 -- Advances the world forward by the given time, taking into account
 -- all the collisions that might happen in that time.
@@ -107,7 +108,7 @@ blobBlobFn world i j =
       vv = dot v v
       pv = dot p v
       pp = dot p p
-      discr = pv^2 - vv^2 * (pp - r^2)
+      discr = pv^2 - vv * (pp - r^2)
   in if discr > 0 && pv < 0 && pp > r^2
      then let t = (- pv - sqrt discr) / vv
           in Just $ Collision t $ BlobBlob i j

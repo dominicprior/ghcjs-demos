@@ -101,7 +101,6 @@ data WhoIsColliding = BlobBlob BlobId BlobId
                     | Side BlobId
                     | CeilingOrFloor BlobId
 
-
 initialWorld :: World
 initialWorld = World [Blob (Vec 100 100) (Vec 10 120) 100 "pink",
                       Blob (Vec 400 100) (Vec 80 80) 70 "green"]
@@ -173,7 +172,7 @@ blobBlobFn world i j =
       vv = dot v v
       pv = dot p v
       pp = dot p p
-      discr = pv^2 - vv^2 * (pp - r^2)
+      discr = pv^2 - vv * (pp - r^2)
   in if discr > 0 && pv < 0 && pp > r^2
      then let t = (- pv - sqrt discr) / vv
           in Just $ Collision t $ BlobBlob i j
