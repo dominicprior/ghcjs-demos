@@ -73,7 +73,7 @@ sideFn world i =
       w = _vecX $ _worldSize world
       t = if u > 0
           then (w - r - x) / u
-          else (x - r) / u
+          else (r - x) / u
   in Collision t $ Side i
 
 -- The next collision of blob i with the ceiling or floor.
@@ -88,7 +88,7 @@ upDownFn world i =
       h = _vecY $ _worldSize world
       k = h - r - y
       discr = v*v - 2*g*k
-      t = if discr > 0
+      t = if v > 0 && discr > 0
           then (v - sqrt discr) / g
           else let k' = r - y
                    discr' = v*v - 2*g*k'
@@ -149,7 +149,7 @@ bounce (BlobBlob i j) bb =
 (++*) :: Vec -> Double -> Vec
 (Vec u v) ++* k  = Vec (k*u) (k*v)
 (++/) :: Vec -> Double -> Vec
-(Vec u v) ++/ k  = Vec (k/u) (k/v)
+v ++/ k  = v ++* (1/k)
 len :: Vec -> Double
 len v = sqrt $ dot v v
 norm :: Vec -> Vec

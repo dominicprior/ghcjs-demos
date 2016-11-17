@@ -103,8 +103,8 @@ data WhoIsColliding = BlobBlob BlobId BlobId
 
 
 initialWorld :: World
-initialWorld = World [Blob (Vec 100 100) (Vec 120 120) 150 "pink",
-                      Blob (Vec 400 100) (Vec 80 80) 70 "cyan"]
+initialWorld = World [Blob (Vec 100 100) (Vec 10 120) 100 "pink",
+                      Blob (Vec 400 100) (Vec 80 80) 70 "green"]
   (Vec 801 600) 10
 
 tick :: Double
@@ -154,7 +154,7 @@ upDownFn world i =
       h = _vecY $ _worldSize world
       k = h - r - y
       discr = v*v - 2*g*k
-      t = if discr > 0
+      t = if v > 0 && discr > 0
           then (v - sqrt discr) / g
           else let k' = r - y
                    discr' = v*v - 2*g*k'
@@ -245,7 +245,7 @@ qq attr val = " " ++ attr ++ "=" ++ "\"" ++ val ++ "\"" ++ " "
 (++*) :: Vec -> Double -> Vec
 (Vec u v) ++* k  = Vec (k*u) (k*v)
 (++/) :: Vec -> Double -> Vec
-(Vec u v) ++/ k  = Vec (k/u) (k/v)
+v ++/ k  = v ++* (1/k)
 len :: Vec -> Double
 len v = sqrt $ dot v v
 norm :: Vec -> Vec
