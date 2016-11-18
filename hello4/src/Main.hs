@@ -102,14 +102,14 @@ data WhoIsColliding = BlobBlob BlobId BlobId
                     | CeilingOrFloor BlobId
 
 initialWorld :: World
-initialWorld = World [Blob (Vec 100 100) (Vec 10 120) 100 "pink",
-                      Blob (Vec 400 100) (Vec 80 80) 70 "cyan",
-                      Blob (Vec 500 300) (Vec 180 80) 20 "#ee99dd",
-                      Blob (Vec 600 100) (Vec 80 150) 40 "yellow"]
-  (Vec 800 600) 10
+initialWorld = World [Blob (Vec 100 100) (Vec 10 200) 30 "pink",
+                      Blob (Vec 200 100) (Vec 80 80)  15 "cyan",
+                      Blob (Vec 150 100) (Vec 80 80)  10 "#ee99dd",
+                      Blob (Vec  50 100) (Vec 80 50)   7 "yellow"]
+  (Vec 300 200) 10
 
 tick :: Double
-tick = 0.1   -- in seconds
+tick = 0.01   -- in seconds
 
 
 -- Advances the world forward by the given time, taking into account
