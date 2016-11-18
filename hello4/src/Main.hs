@@ -103,8 +103,10 @@ data WhoIsColliding = BlobBlob BlobId BlobId
 
 initialWorld :: World
 initialWorld = World [Blob (Vec 100 100) (Vec 10 120) 100 "pink",
-                      Blob (Vec 400 100) (Vec 80 80) 70 "green"]
-  (Vec 801 600) 10
+                      Blob (Vec 400 100) (Vec 80 80) 70 "cyan",
+                      Blob (Vec 500 300) (Vec 180 80) 20 "#ee99dd",
+                      Blob (Vec 600 100) (Vec 80 150) 40 "yellow"]
+  (Vec 800 600) 10
 
 tick :: Double
 tick = 0.1   -- in seconds
@@ -215,6 +217,8 @@ worldStr world =
       h = _vecY $ _worldSize world
   in
     "<svg " ++ q "id" "s" ++ q "width" w ++ q "height" h ++ ">\n" ++
+      "<rect " ++ q "x" 0 ++ q "y" 0 ++ q "width" w ++ q "height" h ++
+      qq "fill" "#ffffdd" ++ q "stroke-width" 0 ++ "/>\n" ++
       concatMap (blobStr h) (_blobs world) ++ "</svg>\n"
 
 
