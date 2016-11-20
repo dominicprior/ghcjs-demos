@@ -102,12 +102,14 @@ data WhoIsColliding = BlobBlob BlobId BlobId
                     | CeilingOrFloor BlobId
 
 initialWorld :: World
-initialWorld = World [Blob (Vec 100 100) (Vec 10 120) 100 "pink",
-                      Blob (Vec 400 100) (Vec 80 80) 70 "green"]
-  (Vec 801 600) 10
+initialWorld = World [Blob (Vec 100 100) (Vec 10 200) 30 "pink",
+                      Blob (Vec 200 100) (Vec 80 80)  15 "cyan",
+                      Blob (Vec 150 100) (Vec 80 80)  10 "#ee99dd",
+                      Blob (Vec  50 100) (Vec 80 50)   7 "yellow"]
+  (Vec 300 200) 10
 
 tick :: Double
-tick = 0.1   -- in seconds
+tick = 0.01   -- in seconds
 
 
 -- Advances the world forward by the given time, taking into account
@@ -215,6 +217,8 @@ worldStr world =
       h = _vecY $ _worldSize world
   in
     "<svg " ++ q "id" "s" ++ q "width" w ++ q "height" h ++ ">\n" ++
+      "<rect " ++ q "x" 0 ++ q "y" 0 ++ q "width" w ++ q "height" h ++
+      qq "fill" "#ffffdd" ++ q "stroke-width" 0 ++ "/>\n" ++
       concatMap (blobStr h) (_blobs world) ++ "</svg>\n"
 
 
